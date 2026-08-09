@@ -1,0 +1,220 @@
+import React, { useState } from 'react';
+import { Student } from '../types';
+import { ALL_CLASSES } from '../data/initialStudents';
+import { Trophy, Medal, Search, Sparkles, Star, Award, Layers } from 'lucide-react';
+
+interface LeaderboardViewProps {
+  students: Student[];
+  currentStudentNisn?: string;
+}
+
+export const LeaderboardView: React.FC<LeaderboardViewProps> = ({
+  students,
+  currentStudentNisn
+}) => {
+  const [selectedClass, setSelectedClass] = useState<string>('Semua Kelas');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Filter students
+  const filteredStudents = students
+    .filter(s => {
+      const matchClass = selectedClass === 'Semua Kelas' || s.studentClass === selectedClass;
+      const matchQuery =
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.nisn.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchClass && matchQuery;
+    })
+    .sort((a, b) => (b.points || 0) - (a.points || 0));
+
+  const top3 = filteredStudents.slice(0, 3);
+  const restList = filteredStudents.slice(3);
+
+  return (
+    <div className="space-y-8">
+      {/* Header Banner */}
+      <div className="bg-gradient-to-r from-teal-700 via-emerald-600 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 bg-white/20 rounded-2xl backdrop-blur-xs">
+              <Trophy className="w-6 h-6 text-amber-300" />
+            </div>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-black">Papan Peringkat Siswa (Leaderboard)</h2>
+              <p className="text-teal-100 text-xs sm:text-sm">
+                Siswa paling aktif & berprestasi dalam mempelajari Algoritma SMA
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/20">
+          <Star className="w-6 h-6 text-amber-300 fill-amber-300" />
+          <div>
+            <span className="text-[10px] font-bold text-teal-200 block uppercase">Total Siswa Terdata</span>
+            <span className="text-xl font-extrabold text-white">{students.length} Siswa</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter and Search Bar */}
+      <div className="bg-white p-4 rounded-2xl border border-emerald-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Class Filter */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Layers className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span className="text-xs font-bold text-emerald-950 shrink-0">Filter Kelas:</span>
+          <select
+            value={selectedClass}
+            onChange={e => setSelectedClass(e.target.value)}
+            className="px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-900 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          >
+            {ALL_CLASSES.map(cls => (
+              <option key={cls} value={cls}>
+                {cls}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Search Student Input */}
+        <div className="relative w-full sm:w-72">
+          <Search className="w-4 h-4 text-emerald-500 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Cari Nama atau NISN..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-emerald-50/50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+        </div>
+      </div>
+
+      {/* Podium Top 3 */}
+      {top3.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+          {/* Rank 2 (Silver) */}
+          {top3[1] && (
+            <div className="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-md flex flex-col items-center text-center relative order-2 md:order-1 mt-0 md:mt-6">
+              <div className="w-12 h-12 rounded-full bg-slate-200 text-slate-700 font-black text-lg flex items-center justify-center mb-3 shadow-inner">
+                #2
+              </div>
+              <Medal className="w-8 h-8 text-slate-400 mb-1" />
+              <h4 className="font-extrabold text-slate-900 text-sm truncate max-w-[180px]">{top3[1].name}</h4>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full mt-1">
+                {top3[1].studentClass}
+              </span>
+              <div className="mt-3 pt-3 border-t border-slate-100 w-full flex items-center justify-center gap-1 text-slate-900 font-extrabold text-lg">
+                <Sparkles className="w-4 h-4 text-amber-500" /> {top3[1].points} XP
+              </div>
+            </div>
+          )}
+
+          {/* Rank 1 (Gold) */}
+          {top3[0] && (
+            <div className="bg-gradient-to-b from-amber-50 to-white rounded-3xl p-6 border-2 border-amber-400 shadow-xl flex flex-col items-center text-center relative order-1 md:order-2 transform scale-105">
+              <div className="w-14 h-14 rounded-full bg-amber-400 text-amber-950 font-black text-xl flex items-center justify-center mb-3 shadow-md shadow-amber-400/30">
+                #1
+              </div>
+              <Trophy className="w-10 h-10 text-amber-500 mb-1 animate-pulse" />
+              <h4 className="font-black text-slate-900 text-base truncate max-w-[200px]">{top3[0].name}</h4>
+              <span className="text-xs font-extrabold text-amber-800 bg-amber-200 px-3 py-1 rounded-full mt-1">
+                {top3[0].studentClass}
+              </span>
+              <div className="mt-3 pt-3 border-t border-amber-200 w-full flex items-center justify-center gap-1 text-amber-600 font-black text-xl">
+                <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" /> {top3[0].points} XP
+              </div>
+            </div>
+          )}
+
+          {/* Rank 3 (Bronze) */}
+          {top3[2] && (
+            <div className="bg-white rounded-3xl p-6 border-2 border-amber-200 shadow-md flex flex-col items-center text-center relative order-3 mt-0 md:mt-8">
+              <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-800 font-black text-lg flex items-center justify-center mb-3 shadow-inner">
+                #3
+              </div>
+              <Award className="w-8 h-8 text-amber-700 mb-1" />
+              <h4 className="font-extrabold text-slate-900 text-sm truncate max-w-[180px]">{top3[2].name}</h4>
+              <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full mt-1">
+                {top3[2].studentClass}
+              </span>
+              <div className="mt-3 pt-3 border-t border-slate-100 w-full flex items-center justify-center gap-1 text-slate-900 font-extrabold text-lg">
+                <Sparkles className="w-4 h-4 text-amber-500" /> {top3[2].points} XP
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Rest Leaderboard Table */}
+      <div className="bg-white rounded-3xl border border-emerald-100 shadow-md overflow-hidden">
+        <div className="p-4 bg-emerald-50 border-b border-emerald-100 font-extrabold text-emerald-950 text-xs sm:text-sm flex items-center justify-between">
+          <span>Daftar Peringkat ({filteredStudents.length} Siswa)</span>
+          <span className="text-emerald-700 font-medium">Diurutkan berdasarkan Total XP</span>
+        </div>
+
+        <div className="divide-y divide-emerald-50 overflow-x-auto">
+          {filteredStudents.map((st, idx) => {
+            const isMe = currentStudentNisn && st.nisn.trim() === currentStudentNisn.trim();
+
+            return (
+              <div
+                key={st.id || st.nisn}
+                className={`p-4 flex items-center justify-between text-xs sm:text-sm transition ${
+                  isMe ? 'bg-amber-100/70 font-bold border-l-4 border-amber-500' : 'hover:bg-emerald-50/50'
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span
+                    className={`w-8 h-8 rounded-xl font-bold flex items-center justify-center shrink-0 ${
+                      idx === 0
+                        ? 'bg-amber-400 text-amber-950 font-black'
+                        : idx === 1
+                        ? 'bg-slate-300 text-slate-900 font-black'
+                        : idx === 2
+                        ? 'bg-amber-200 text-amber-900 font-black'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}
+                  >
+                    {idx + 1}
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-900 block flex items-center gap-2">
+                      {st.name}
+                      {isMe && (
+                        <span className="text-[10px] bg-amber-500 text-white px-2 py-0.5 rounded-full uppercase">
+                          Kamu
+                        </span>
+                      )}
+                    </span>
+                    <span className="text-[11px] text-slate-500">
+                      NISN: {st.nisn} • Kelas {st.studentClass}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-right">
+                  <div className="hidden sm:block">
+                    <span className="text-[11px] text-emerald-700 block font-semibold">
+                      {(st.completedModules || []).length} Modul Tuntas
+                    </span>
+                    <span className="text-[10px] text-slate-400 block">
+                      {(st.solvedPuzzles || []).length} Teka-Teki
+                    </span>
+                  </div>
+                  <div className="font-black text-emerald-800 text-base sm:text-lg flex items-center gap-1">
+                    <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" /> {st.points || 0} XP
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredStudents.length === 0 && (
+            <div className="p-8 text-center text-slate-500 text-xs">
+              Tidak ada data siswa ditemukan untuk kriteria pencarian ini.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

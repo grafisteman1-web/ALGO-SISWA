@@ -1,0 +1,6 @@
+{
+  "name": "AlgoSMA - Belajar & Simulasi Algoritma Kelas X",
+  "description": "Aplikasi interaktif belajar bentuk-bentuk algoritma, simulasi logika kehidupan SMA, teka-teki harian, leaderboard, dan Tanya AI untuk siswa SMA Kelas X.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
